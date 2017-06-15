@@ -6,7 +6,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
+import com.test.trgt.models.Error;
+import com.test.trgt.exceptions.BaseException;
 import com.test.trgt.models.Product;
 import com.test.trgt.service.ProductService;
 
@@ -31,7 +32,12 @@ public class GatewayApi {
 	@Path("/products/{id}")
 	public Product responseMsg(@PathParam("id") long productId) {
 
-		Product product = productService.getProductDetailsById(productId);
+		Product product = new Product();
+		try {
+			product = productService.getProductDetailsById(productId);
+		} catch (BaseException e) {
+			product.setError(new Error(e.message, e.responseCode));
+		}
 				
 		return product;
 	}
