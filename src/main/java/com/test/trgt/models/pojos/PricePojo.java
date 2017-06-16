@@ -36,7 +36,7 @@ public class PricePojo {
 	@Override
 	public String toString() {
 		return BuildString.init("PricePojo{")
-                .append(", value='").append(value)
+                .append("value='").append(value)
                 .append(", current_code=").append(current_code)
                 .append('}').get();
 	}

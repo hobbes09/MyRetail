@@ -12,15 +12,25 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
 import com.test.trgt.models.Price;
-import com.test.trgt.models.Product;
 import com.mongodb.util.JSON;
 
 public class PricesRepository {
 	
-	DBCollection collection = DbManager.dbManager.getPricesCollection();
+	DBCollection collection;
+	ObjectMapper mapper;
 	
-	// TODO : To be injected
-	ObjectMapper mapper = new ObjectMapper();
+	static PricesRepository pricesRepository = new PricesRepository();
+	
+	public static PricesRepository getInstance(){
+		if (pricesRepository == null)
+			pricesRepository = new PricesRepository();
+		return pricesRepository;
+	}
+	
+	public PricesRepository(){
+		mapper = new ObjectMapper();
+		collection = DbManager.dbManager.getPricesCollection();
+	}
 	
 	public Price getPriceByProductId(int productId){
 		
@@ -54,6 +64,32 @@ public class PricesRepository {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	public boolean updatePriceByProductId(int productId, Price price){
+		
+		price.setProduct_id(productId);
+		DBObject query = BasicDBObjectBuilder.start().add("product_id", productId).get();
+		try {
+			String jsonInString = mapper.writeValueAsString(price);
+			
+			if (jsonInString != null){
+				DBObject dbObject = (DBObject) JSON.parse(jsonInString);
+				WriteResult result = collection.update(query, dbObject);
+				if (result.isUpdateOfExisting())
+					return true;
+				else
+					return false;
+			}
+		} catch (JsonGenerationException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+		
 	}
 	
 	private Price getPriceFromDbObject(DBObject priceDbObject){

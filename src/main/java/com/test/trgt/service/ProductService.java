@@ -20,15 +20,25 @@ import okhttp3.HttpUrl;
 
 public class ProductService {
 	
-	// TODO : To be injected
-	Client client = Client.create();
-		
-	// TODO : To be injected
-	ObjectMapper mapper = new ObjectMapper();
+	Client client;
+	ObjectMapper mapper;
+	PricesRepository pricesRepository;
 	
-	// TODO : To be injected
-	PricesRepository pricesRepository = new PricesRepository();
+	static ProductService productService = new ProductService();
 	
+	public static ProductService getInstance(){
+		if (productService == null)
+			productService = new ProductService();
+		return productService;
+	}
+	
+	public ProductService() {
+		super();
+		this.client = Client.create();
+		this.mapper = new ObjectMapper();
+		this.pricesRepository = PricesRepository.getInstance();
+	}
+
 	public Product getProductDetailsById(int id) throws BaseException{
 		
 		if (id <= 0)
