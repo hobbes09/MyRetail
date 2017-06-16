@@ -1,11 +1,14 @@
 package com.test.trgt.service;
 
 import com.test.trgt.models.Error;
+import com.test.trgt.models.Price;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.test.trgt.config.ApplicationConfig;
+import com.test.trgt.data.PricesRepository;
 import com.test.trgt.exceptions.BaseException;
 import com.test.trgt.exceptions.HttpException;
 import com.test.trgt.exceptions.RequestException;
@@ -23,7 +26,10 @@ public class ProductService {
 	// TODO : To be injected
 	ObjectMapper mapper = new ObjectMapper();
 	
-	public Product getProductDetailsById(long id) throws BaseException{
+	// TODO : To be injected
+	PricesRepository pricesRepository = new PricesRepository();
+	
+	public Product getProductDetailsById(int id) throws BaseException{
 		
 		if (id <= 0)
 			throw new RequestException().setResponseCode(404);
@@ -43,18 +49,25 @@ public class ProductService {
 						
 			if (extProductResponse.getProductCompositeResponse().getItems().isEmpty() || 
 					extProductResponse.getProductCompositeResponse().getItems().get(0).getDataPageLink() == null){
-				return new Product(id, null, null, new Error("Product with this ID is not available", 404));
+				return new Product(id, null, null, null, new Error("Product with this ID is not available", 404));
+			}
+			
+			// Executed only if product exists
+			Price price = pricesRepository.getPriceByProductId(id);
+			if (price == null){
+				price = new Price(id, 10, "USD");
+				pricesRepository.addPriceByProductId(price);
 			}
 			
 			return new Product(id, extProductResponse.getProductCompositeResponse().getItems().get(0).getOnlineDescription().getValue(), 
-					extProductResponse.getProductCompositeResponse().getItems().get(0).getDataPageLink(), null);
+					extProductResponse.getProductCompositeResponse().getItems().get(0).getDataPageLink(), price, null);
 			
 		} catch (Exception e){
 			throw new ServerException().setResponseCode(500);
 		}
 	}
 	
-	public String getProductRequestByIdUrl(long id){
+	public String getProductRequestByIdUrl(int id){
 		
 		return new HttpUrl.Builder()
 			    .scheme(ApplicationConfig.SCHEME)
