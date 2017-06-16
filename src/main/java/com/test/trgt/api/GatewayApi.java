@@ -1,6 +1,9 @@
 package com.test.trgt.api;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -11,6 +14,8 @@ import com.test.trgt.models.Price;
 import com.test.trgt.data.PricesRepository;
 import com.test.trgt.exceptions.BaseException;
 import com.test.trgt.models.Product;
+import com.test.trgt.models.pojos.PricePojo;
+import com.test.trgt.models.pojos.ProductPriceUpdateStatus;
 import com.test.trgt.service.ProductService;
 
 @Path("/api")
@@ -44,4 +49,15 @@ public class GatewayApi {
 				
 		return product;
 	}
+	
+	@PUT
+	@Path("/products/{id}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response responseMsg( @PathParam("id") int productId, PricePojo pricePojo){
+		
+		System.out.println(">>>>>>>>>>> " + productId + "===========" + pricePojo);
+		
+		return Response.status(201).entity("Hello !!").build();
+	}
+	
 }
